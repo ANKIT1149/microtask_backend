@@ -91,7 +91,7 @@ app.post('/client_sendmail', async (req, res) => {
     });
 
     const mailOptions = {
-      from: `"Microtasker" <${process.env.EMAIL_ADDRESS}>`,
+      from: `"Microtasker" <${process.env.SMTP_USER}>`,
       to: to,
       subject: subject,
       text: body,
