@@ -2,6 +2,7 @@ import express, { text } from 'express';
 import nodemailer from 'nodemailer';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 
 const app = express();
 
@@ -68,14 +69,14 @@ app.post('/sendmail', async (req, res) => {
   }
 });
 
-app.post("/client_sendmail", async (req, res) => {
+app.post('/client_sendmail', async (req, res) => {
   try {
     const { to, subject, body } = req.body;
 
     if (!to || !subject || !body) {
-       return res.status(400).json({
+      return res.status(400).json({
         success: false,
-        message: "Please provide all fields"
+        message: 'Please provide all fields',
       });
     }
 
@@ -87,27 +88,55 @@ app.post("/client_sendmail", async (req, res) => {
         pass: process.env.SMTP_PASS,
       },
       secure: false,
-    })
+    });
 
     const mailOptions = {
       from: `"Microtasker" <${process.env.EMAIL_ADDRESS}>`,
       to: to,
       subject: subject,
       text: body,
-    }
+    };
 
     return res.status(200).json({ success: true, info });
 
-    const info = await transporter.sendMail(mailOptions)
+    const info = await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.log("Error in client_sendMail:", error);
+    console.log('Error in client_sendMail:', error);
     return res.status(500).json({
       success: false,
-      message: "failed to send email",
-      error: error.message
-    })
+      message: 'failed to send email',
+      error: error.message,
+    });
   }
-})
+});
+
+app.post('/generate_token', async (req, res) => {
+  try {
+    const { user, clientId } = req.body;
+    if (!user || !body) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide all fields',
+      });
+    }
+
+    const payload = {
+      userId: user,
+      clientId: clientId
+    }
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '4d' })
+    
+    return token
+  } catch (error) {
+    console.log('Error in generating token:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'failed to generate token',
+      error: error.message,
+    });
+  }
+});
 
 app.get('/get_secret_key', (req, res) => {
   res.json({
@@ -134,6 +163,6 @@ app.get('/get_secret_key', (req, res) => {
     EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
     BASE_DOWNLOAD_URL: process.env.BASE_DOWNLOAD_URL,
     FCM_SERVER_KEY: process.env.FCM_SERVER_KEY,
-    JWT_SECRET_KEY: process.env.JWT_SECRET_KEY
+    JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
   });
 });
