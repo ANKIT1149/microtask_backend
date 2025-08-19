@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { text } from 'express';
 import nodemailer from 'nodemailer';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -68,6 +68,47 @@ app.post('/sendmail', async (req, res) => {
   }
 });
 
+app.post("/client_sendmail", async (req, res) => {
+  try {
+    const { to, subject, body } = req.body;
+
+    if (!to || !subject || !body) {
+       return res.status(400).json({
+        success: false,
+        message: "Please provide all fields"
+      });
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+      secure: false,
+    })
+
+    const mailOptions = {
+      from: `"Microtasker" <${process.env.EMAIL_ADDRESS}>`,
+      to: to,
+      subject: subject,
+      text: body,
+    }
+
+    return res.status(200).json({ success: true, info });
+
+    const info = await transporter.sendMail(mailOptions)
+  } catch (error) {
+    console.log("Error in client_sendMail:", error);
+    return res.status(500).json({
+      success: false,
+      message: "failed to send email",
+      error: error.message
+    })
+  }
+})
+
 app.get('/get_secret_key', (req, res) => {
   res.json({
     API_KEY: process.env.API_KEY,
@@ -91,6 +132,7 @@ app.get('/get_secret_key', (req, res) => {
 
     EMAIL_ADDRESS: process.env.EMAIL_ADDRESS,
     EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
-    BASE_DOWNLOAD_URL: process.env.BASE_DOWNLOAD_URL
+    BASE_DOWNLOAD_URL: process.env.BASE_DOWNLOAD_URL,
+    FCM_SERVER_KEY: process.env.FCM_SERVER_KEY
   });
 });
