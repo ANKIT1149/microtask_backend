@@ -133,6 +133,7 @@ app.get('/get_secret_key', (req, res) => {
     EMAIL_ADDRESS: process.env.EMAIL_ADDRESS,
     EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
     BASE_DOWNLOAD_URL: process.env.BASE_DOWNLOAD_URL,
-    FCM_SERVER_KEY: process.env.FCM_SERVER_KEY
+    FCM_SERVER_KEY: process.env.FCM_SERVER_KEY,
+    JWT_SECRET_KEY: process.env.JWT_SECRET_KEY
   });
 });
