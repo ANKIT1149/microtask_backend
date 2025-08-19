@@ -99,7 +99,6 @@ app.post('/client_sendmail', async (req, res) => {
 
     return res.status(200).json({ success: true, info });
 
-    const info = await transporter.sendMail(mailOptions);
   } catch (error) {
     console.log('Error in client_sendMail:', error);
     return res.status(500).json({
@@ -113,7 +112,7 @@ app.post('/client_sendmail', async (req, res) => {
 app.post('/generate_token', async (req, res) => {
   try {
     const { user, clientId } = req.body;
-    if (!user || !body) {
+    if (!user || !clientId) {
       return res.status(400).json({
         success: false,
         message: 'Please provide all fields',
@@ -127,7 +126,10 @@ app.post('/generate_token', async (req, res) => {
 
     const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '4d' })
     
-    return token
+    return res.status(200).json({
+      success: true,
+      token,
+    });
   } catch (error) {
     console.log('Error in generating token:', error);
     return res.status(500).json({
