@@ -83,11 +83,11 @@ app.post('/client_sendmail', async (req, res) => {
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT,
+      secure: false,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
-      secure: false,
     });
 
     const mailOptions = {
@@ -96,6 +96,8 @@ app.post('/client_sendmail', async (req, res) => {
       subject: subject,
       text: body,
     };
+
+    const info = await transporter.sendMail(mailOptions)
 
     return res.status(200).json({ success: true, info });
 
